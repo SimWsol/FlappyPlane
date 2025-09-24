@@ -284,7 +284,7 @@ int main()
 			
 			drawplayer();
 			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
-			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, GREEN);
+			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, BLACK);
 
 			DrawFPS(10, 10);
 
@@ -305,8 +305,6 @@ int main()
 			collisionDetection();
 			UpdateGameScore();
 			drawplayer();
-			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
-			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, GREEN);
 
 			DrawFPS(10, 10);
 
@@ -316,6 +314,8 @@ int main()
 			MovingCloud();
 			rectangleHitbox();
 			rectangleHitbox2();
+			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
+			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, BLACK);
 			//PLAYER GOES HERE
 		} break;
 		default: break;
