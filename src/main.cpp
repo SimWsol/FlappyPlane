@@ -6,6 +6,14 @@
 #include <string>
 #include <random>
 // Global Variables
+
+//Gamestates
+typedef enum GameScreen { LOGO = 0, GAMESTART, GAMEPLAY } GameScreen;
+int gameActive = 0;
+int framesCounter = 0;
+GameScreen currentScreen = LOGO;
+
+// Window variables
 float windowWidth = 1280;
 float windowHeight = 1024;
 float windowHalfWidth = windowWidth / 2;
@@ -14,6 +22,8 @@ float windowHalfHeight = windowHeight / 2;
 // Global player variables
 float playerXPosition = windowHalfWidth;
 float playerYPosition = windowHalfHeight;
+float playerSpeed = 500.f;
+
 //Scoring
 int Score = 0;
 int Highscore = 0;
@@ -27,6 +37,7 @@ float imageSizeY = 67;
 float imageHalfSizeX = imageSizeX / 2;
 float imageHalfSizeY = imageSizeY / 2;
 
+//clouds variables
 double movingX = 1000.f;
 int randomY = 200;
 double cloudsSize = 100.f;
@@ -48,6 +59,20 @@ float playerMovementSpeed = 5.f;
 Color skye = { 116, 253, 255, 255 };
 
 Vector2 myPlayerPosition{ 0,0 };
+
+//Helper function
+void DrawCenteredText(const char* text, int posY, int fontSize, Color color)
+{
+	// Measure the width of the text
+	float textWidth = MeasureText(text, fontSize);
+
+	// Calculate the X position to center the text
+	// GetScreenWidth() is a Raylib function that returns the current screen width
+	float posX = (GetScreenWidth() / 2.0f) - (textWidth / 2.0f);
+
+	// Draw the text at the calculated position
+	DrawText(text, (int)posX, posY, fontSize, color);
+}
 
 void Clouds() {
 	leftCloudX = movingX - (cloudsSize * 1.25);
@@ -102,6 +127,7 @@ float SizeBetween = 200;
 
 Rectangle tryRectangle = { 0, 0, 0, 0 };
 Rectangle tryRectangle2 = { 0, 0, 0, 0 };
+
 void rectangleHitbox() {
 	rectangleY = windowHeight - rectangleHeight;
 	rectangleWidth = 200;
@@ -127,6 +153,32 @@ void rectangleHitbox2() {
 		std::cout << playerMovementSpeed;
 	}
 }
+
+void collisionDetection()
+{
+	myPlayerPosition = { playerXPosition,playerYPosition };
+	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle))
+	{
+		std::cout << "You hit";
+		Score = 0;
+		gameActive = 4;
+		if (gameActive == 4)
+		{
+			currentScreen = GAMESTART;
+		}
+	}
+	myPlayerPosition = { playerXPosition,playerYPosition };
+	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle2))
+	{
+		std::cout << "You hit";
+		Score = 0;
+		gameActive = 4;
+		if (gameActive == 4)
+		{
+			currentScreen = GAMESTART;
+		}
+	}
+}
 void DrawPng() {
 	DrawTexture(paperplane, playerXPosition - imageHalfSizeX, playerYPosition - imageHalfSizeY, WHITE);
 	DrawRectangle(rectangleX, rectangleY, rectangleWidth, rectangleHeight, GREEN);
@@ -134,16 +186,16 @@ void DrawPng() {
 }
 //Changed PlayerControlls
 void PlayerController() {
-	float playerSpeed = 500.f;
-
-	if (playerYPosition < 0 || playerYPosition > windowHeight )
+	if (playerYPosition < 0 || playerYPosition > windowHeight)
 	{
-		//gameActive = 4; // set gameActive to 4 if the ball goes out of bounds
-		// reset ball position to center
 		Score = 0;
 		playerYPosition = windowHalfHeight;
 		playerXPosition = windowHalfWidth;
-
+		gameActive = 4;
+		if (gameActive == 4)
+		{
+			currentScreen = GAMESTART;
+		}
 	}
 	if (IsKeyDown(KEY_SPACE)) {
 		playerYPosition -= playerSpeed * GetFrameTime();
@@ -181,39 +233,100 @@ int main()
 	paperplane = LoadTexture("src/Resources/Paperplane.png");
 
 	while (!WindowShouldClose()) {
+		switch (currentScreen)
+		{
+		case LOGO:
+		{
+			// TODO: Update LOGO screen variables here!
+			gameActive = 2; // set gameActive to 2 when showing logo
+			framesCounter++;
+
+			// Wait for 3 seconds (360/120 frames per second) before jumping to GAMESTART screen
+			if (framesCounter > 360)
+			{
+				currentScreen = GAMESTART;
+			}
+		} break;
+		case GAMESTART:
+		{
+			// TODO: Update GAMESTART screen variables here!
+			// Press enter to change to GAMEPLAY screen
+			playerMovementSpeed = 0;
+			playerSpeed = 0;
+			rectangleX = windowWidth;
+			rectangle2X = windowWidth;
+
+			if (IsKeyReleased(KEY_SPACE)  )
+			{
+
+				currentScreen = GAMEPLAY;
+				gameActive = 1; // set gameActive to 1 when starting the game
+			}
+		} break;
+		case GAMEPLAY:
+		{
+			playerMovementSpeed = 5.f;
+			playerSpeed = 500.f;
+			// TODO: Update GAMEPLAY screen variables here!
+		} break;
+		default: break;
+		}
+
 		BeginDrawing();
 
 		ClearBackground(skye);
-		PlayerController();
-		myPlayerPosition = { playerXPosition,playerYPosition };
-		if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle))
-		{
-			std::cout << "You hit";
-			playerMovementSpeed = 5;
-			Score = 0;
-		}
-		myPlayerPosition = { playerXPosition,playerYPosition };
-		if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle2))
-		{
-			std::cout << "You hit";
-			playerMovementSpeed = 5;
-			Score = 0;
-		}
-		UpdateGameScore();
-		drawplayer();
-		DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
-		DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, GREEN);
 
-		DrawFPS(10, 10);
+		switch (currentScreen)
+		{
+		case LOGO:
+		{
+			DrawCenteredText("LOGO SCREEN", (float)windowHalfHeight, 50, LIGHTGRAY);
+			DrawCenteredText("WAIT for 3 SECONDS...", (float)windowHalfHeight - 100, 40, GRAY);
+		} break;
+		case GAMESTART:
+		{
+			
+			drawplayer();
+			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
+			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, GREEN);
 
+			DrawFPS(10, 10);
+
+			DrawPng();
+
+			Clouds();
+			
+			// TODO: Draw GAMESTART screen here!
+			//Insert drawings here, set speed to 0
+
+			DrawCenteredText("FLAPPY PLAAAAANE", (float)windowHalfHeight - 100, 50, DARKGREEN);
+			DrawCenteredText("PRESS SPACE/Left Click to Play", (float)windowHalfHeight - 200, 40, DARKGREEN);
+		} break;
+		case GAMEPLAY:
+		{
+			// TODO: Draw GAMEPLAY screen here!
+			PlayerController();
+			collisionDetection();
+			UpdateGameScore();
+			drawplayer();
+			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
+			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, GREEN);
+
+			DrawFPS(10, 10);
+
+			DrawPng();
+
+			Clouds();
+			MovingCloud();
+			rectangleHitbox();
+			rectangleHitbox2();
+			//PLAYER GOES HERE
+		} break;
+		default: break;
+		}
+
+		
 		EndDrawing();
-
-		DrawPng();
-
-		Clouds();
-		MovingCloud();
-		rectangleHitbox();
-		rectangleHitbox2();
 	}
 	UnloadTexture(paperplane);
 	CloseWindow();
