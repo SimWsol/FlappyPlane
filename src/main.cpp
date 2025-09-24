@@ -5,39 +5,43 @@
 #include <time.h>
 #include <string>
 #include <random>
-// Global Variables
 
-//Gamestates
+// Global Variables
+//Gamestates------------------------------------------------------
 typedef enum GameScreen { LOGO = 0, GAMESTART, GAMEPLAY } GameScreen;
 bool gameActive = false;
 int framesCounter = 0;
 GameScreen currentScreen = LOGO;
 
-// Window variables
+// Window variables-----------------------------------------------
 float windowWidth = 1280;
 float windowHeight = 1024;
 float windowHalfWidth = windowWidth / 2;
 float windowHalfHeight = windowHeight / 2;
 
-// Global player variables
+// Global player variables----------------------------------------
 float playerXPosition = windowHalfWidth;
 float playerYPosition = windowHalfHeight;
-float playerSpeed = 500.f;
+float playerSpeedY = 0;
+const float playerRadius = 33.f;
+const float gravity = 5000.f;
+const float terminalVelocity = 1000.f;
+const float jumpForce = -500.f;
+const float jumpSustainForce = 750.f;
 
-//Scoring
+//Scoring---------------------------------------------------------
 int Score = 0;
 int Highscore = 0;
 bool scored;
-// Texture for paperplane
 
+// Texture for paperplane-----------------------------------------
 Texture2D paperplane;
-
 float imageSizeX = 140;
 float imageSizeY = 67;
 float imageHalfSizeX = imageSizeX / 2;
 float imageHalfSizeY = imageSizeY / 2;
 
-//clouds variables
+//clouds variables------------------------------------------------
 double movingX = 1000.f;
 int randomY = 200;
 double cloudsSize = 100.f;
@@ -54,15 +58,13 @@ double rightCloudSize = 0;
 double downCloudX = 0;
 double downCloudY = 0;
 double downCloudSize = 0;
-float playerMovementSpeed = 5.f;
+float objectMovementSpeed = 5.f;
 
 Color skye = { 116, 253, 255, 255 };
 
 Vector2 myPlayerPosition{ 0,0 };
 
-
-
-// rectangle variables 
+// rectangle variables-------------------------------------------------
 Rectangle tryRectangle = { 0, 0, 0, 0 };
 Rectangle tryRectangle2 = { 0, 0, 0, 0 };
 
@@ -77,8 +79,17 @@ float rectangle2Height = 400.f;
 float rectangle2Width = 200.f;
 
 float SizeBetween = 200;
+const float initialRectangleGap = 200.f;
+const float widthRectangle = 200.f;
 
-//Helper function
+//Helper function--------------------------------------------------------
+void drawPlayerTest() {
+	//Draws a Circle for testing hitbox
+	float playerSize = 33.f;
+	Color playerColor = BLACK;
+	DrawCircle(myPlayerPosition.x, myPlayerPosition.y, playerSize, YELLOW);
+}
+
 void DrawCenteredText(const char* text, int posY, int fontSize, Color color)
 {
 	// Measure the width of the text
@@ -124,16 +135,16 @@ void MovingCloud() {
 		cloudsSize = GetRandomValue(50, 100);
 	}
 	else {
-		movingX -= playerMovementSpeed;
-		rightCloudX -= playerMovementSpeed;
-		leftCloudX -= playerMovementSpeed;
+		movingX -= objectMovementSpeed;
+		rightCloudX -= objectMovementSpeed;
+		leftCloudX -= objectMovementSpeed;
 	}
 }
 
 void rectangleHitbox() {
 	rectangleY = windowHeight - rectangleHeight;
 	rectangleWidth = 200;
-	rectangleX -= playerMovementSpeed;
+	rectangleX -= objectMovementSpeed;
 	tryRectangle = { rectangleX,rectangleY,rectangleWidth,rectangleHeight };
 	if (rectangleX < 0 - rectangleWidth) {
 		rectangleX = windowWidth;
@@ -145,62 +156,101 @@ void rectangleHitbox() {
 void rectangleHitbox2() {
 	rectangle2Y = 0;
 	rectangle2Width = 200;
-	rectangle2X -= playerMovementSpeed;
+	rectangle2X -= objectMovementSpeed;
 
 	tryRectangle2 = { rectangle2X,rectangle2Y,rectangle2Width,rectangle2Height };
 	rectangle2Height = windowHeight - rectangleHeight - SizeBetween;
 	if (rectangle2X < 0 - rectangle2Width) {
 		rectangle2X = windowWidth;
 		SizeBetween = GetRandomValue(200, 250);
-		playerMovementSpeed += 0.1;
-		std::cout << playerMovementSpeed;
+		objectMovementSpeed += 0.1;
+		std::cout << objectMovementSpeed;
 	}
 }
 
 void collisionDetection()
 {
 	myPlayerPosition = { playerXPosition,playerYPosition };
-	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle))
+	if (CheckCollisionCircleRec(myPlayerPosition, playerRadius, tryRectangle) || CheckCollisionCircleRec(myPlayerPosition, playerRadius, tryRectangle2))
 	{
-		std::cout << "You hit number 1";
+		std::cout << "You hit one of the rectangles";
 		std::cout << tryRectangle.x;
-		Score = 0;
 		currentScreen = GAMESTART;
-		playerYPosition = windowHalfHeight-100;
-			return;
+		playerYPosition = windowHalfHeight - 100;
+		return;
 	}
-	myPlayerPosition = { playerXPosition,playerYPosition };
-	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle2))
+	//Not needed as both rectangles are checked in one if statement
+	/*myPlayerPosition = { playerXPosition,playerYPosition };
+	if (CheckCollisionCircleRec(myPlayerPosition, playerRadius, tryRectangle2))
 	{
 		std::cout << "You hit number 2";
 		std::cout << tryRectangle2.x;
-		Score = 0;
 		currentScreen = GAMESTART;
-		playerYPosition = windowHalfHeight-100;
+		playerYPosition = windowHalfHeight - 100;
 		return;
-	}
+	}*/
 }
+
+void DrawPlayerWithRotation() {
+	// Calculate a rotation angle based on vertical velocity.
+	// We multiply by a small factor to make the rotation look good.
+	// We also clamp it so it doesn't spin too far.
+	float rotation = playerSpeedY * 0.05f;
+	if (rotation > 45.0f) rotation = 70.0f;   // Clamp max downward angle
+	if (rotation < -30.0f) rotation = -30.0f; // Clamp max upward angle
+
+	// Define the how big the texture is and attach it to the rectangle
+	Rectangle sourceRec = { 0.0f, 0.0f, (float)paperplane.width, (float)paperplane.height };
+	Rectangle destRec = { playerXPosition, playerYPosition, imageSizeX, imageSizeY };
+
+	// The origin is the point the sprite rotates around. For centered rotation,
+	// it's the middle of the image.
+	Vector2 origin = { imageHalfSizeX, imageHalfSizeY };
+
+	// Drawing the texture with rotation!
+	DrawTexturePro(paperplane, sourceRec, destRec, origin, rotation, WHITE);
+}
+
 void DrawPng() {
-	DrawTexture(paperplane, playerXPosition - imageHalfSizeX, playerYPosition - imageHalfSizeY, WHITE);
+	// Draw the player with rotation based on vertical speed
+	DrawPlayerWithRotation();
+	//alternative without rotation
+	//DrawTexture(paperplane, playerXPosition - imageHalfSizeX, playerYPosition - imageHalfSizeY, WHITE);
 	DrawRectangle(rectangleX, rectangleY, rectangleWidth, rectangleHeight, GREEN);
 	DrawRectangle(rectangle2X, rectangle2Y, rectangle2Width, rectangle2Height, GREEN);
 }
-//Changed PlayerControlls
+// PlayerControlls
+//todo make player tilt up and down when moving
+
 void PlayerController() {
 	if (playerYPosition < 0 || playerYPosition > windowHeight)
 	{
-		Score = 0;
 		playerYPosition = windowHalfHeight;
 		playerXPosition = windowHalfWidth;
+
+		// Reset game state to GAMESTART
 		currentScreen = GAMESTART;
 	}
-	if (IsKeyDown(KEY_SPACE)) {
-		playerYPosition -= playerSpeed * GetFrameTime();
+	if (IsKeyDown(KEY_SPACE))
+	{
+		// Apply upward force when the space key is pressed
+		playerSpeedY = jumpForce;
 	}
-	else {
-		playerYPosition += (playerSpeed / 2) * GetFrameTime();
-		GetApplicationDirectory();
+	else if (IsKeyDown(KEY_SPACE))
+	{
+		// Apply upward force when the space key is pressed
+		playerSpeedY -= jumpSustainForce;
 	}
+	// Apply gravity to the player's vertical speed
+	playerSpeedY += gravity * GetFrameTime();
+
+	//Caps terminal velocity to avoid going too fast
+	if (playerSpeedY > terminalVelocity)
+	{
+		playerSpeedY = terminalVelocity;
+	}
+	// Update the player's vertical position based on speed
+	playerYPosition += playerSpeedY * GetFrameTime();
 }
 
 void UpdateGameScore()
@@ -214,14 +264,6 @@ void UpdateGameScore()
 	if (Score > Highscore) Highscore = Score;
 }
 
-void drawplayer() {
-	float playerSize = 33.f;
-	Color playerColor = { 102, 0, 102, 255 };
-
-	//Circle for testing hitbox
-	DrawCircle(myPlayerPosition.x, myPlayerPosition.y, playerSize, YELLOW);
-}
-
 int main()
 {
 	InitWindow(windowWidth, windowHeight, "My first window!!");
@@ -230,6 +272,7 @@ int main()
 	paperplane = LoadTexture("src/Resources/Paperplane.png");
 
 	while (!WindowShouldClose()) {
+		//UPDATE LOGIC--------------------------
 		switch (currentScreen)
 		{
 		case LOGO:
@@ -247,22 +290,22 @@ int main()
 		case GAMESTART:
 		{
 			// TODO: Update GAMESTART screen variables here!
-			playerMovementSpeed = 0;
-			playerSpeed = 0;
+			objectMovementSpeed = 0;
+			playerSpeedY = 0;
 			rectangleX = windowWidth;
 			rectangle2X = windowWidth;
 
-			if (IsKeyReleased(KEY_SPACE)  )
+			if (IsKeyPressed(KEY_SPACE))
 			{
-
 				currentScreen = GAMEPLAY;
+				objectMovementSpeed = 5.f;
+				playerSpeedY = 500.f;
+				Score = 0;
 				gameActive = true; // set gameActive to true when game is running
 			}
 		} break;
 		case GAMEPLAY:
 		{
-			playerMovementSpeed = 5.f;
-			playerSpeed = 500.f;
 			// TODO: Update GAMEPLAY screen variables here!
 		} break;
 		default: break;
@@ -271,7 +314,7 @@ int main()
 		BeginDrawing();
 
 		ClearBackground(skye);
-
+		//DRAW LOGIC--------------------------
 		switch (currentScreen)
 		{
 		case LOGO:
@@ -281,8 +324,10 @@ int main()
 		} break;
 		case GAMESTART:
 		{
+			//For testing hitbox
+			//drawPlayerTest();
 			//Draw GAMESTART screen here!
-			drawplayer();
+
 			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
 			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, BLACK);
 
@@ -291,15 +336,15 @@ int main()
 			Clouds();
 
 			DrawPng();
-			
-			
-			
 
 			DrawCenteredText("FLAPPY PLAAAAANE", (float)windowHalfHeight - 100, 50, DARKGREEN);
 			DrawCenteredText("PRESS SPACE/Left Click to Play", (float)windowHalfHeight - 200, 40, DARKGREEN);
 		} break;
 		case GAMEPLAY:
 		{
+			//For testing hitbox
+			//drawPlayerTest();
+
 			//Draw GAMEPLAY screen here!
 			PlayerController();
 			rectangleHitbox();
@@ -308,18 +353,16 @@ int main()
 			collisionDetection();
 			UpdateGameScore();
 
-			drawplayer();
-
 			DrawFPS(10, 10);
 
 			Clouds();
 
 			DrawPng();
 			MovingCloud();
-			
+
 			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
 			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, BLACK);
-			} break;
+		} break;
 
 		default: break;
 		}
