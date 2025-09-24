@@ -43,6 +43,8 @@ double downCloudX = 0;
 double downCloudY = 0;
 double downCloudSize = 0;
 float playerMovementSpeed = 5.f;
+//Added half speed
+float playerMovementSpeedHalf = playerMovementSpeed / 2;
 Color skye = { 116, 253, 255, 255 };
 
 Vector2 myPlayerPosition{ 0,0 };
@@ -129,24 +131,17 @@ void DrawPng() {
 	DrawRectangle(rectangleX, rectangleY, rectangleWidth, rectangleHeight, GREEN);
 	DrawRectangle(rectangle2X, rectangle2Y, rectangle2Width, rectangle2Height, GREEN);
 }
-
+//Changed PlayerControlls
 void PlayerController() {
-	float playerSpeed = 100.f;
-	if (IsKeyDown(KEY_LEFT_SHIFT)) {
-		playerSpeed = 500.f;
-	}
-	if (IsKeyDown(KEY_A)) {
-		playerXPosition -= playerSpeed * GetFrameTime();
-	}
-	else if (IsKeyDown(KEY_D)) {
-		playerXPosition += playerSpeed * GetFrameTime();
-	}
-	if (IsKeyDown(KEY_W)) {
+	float playerSpeed = 500.f;
+	if (IsKeyDown(KEY_SPACE)) {
 		playerYPosition -= playerSpeed * GetFrameTime();
+		playerMovementSpeed = playerMovementSpeedHalf;
 	}
-	else if (IsKeyDown(KEY_S)) {
-		playerYPosition += playerSpeed * GetFrameTime();
+	else {
+		playerYPosition += (playerSpeed / 2) * GetFrameTime();
 		GetApplicationDirectory();
+		playerMovementSpeed = playerMovementSpeedHalf * 2;
 	}
 }
 
