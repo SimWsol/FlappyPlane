@@ -9,7 +9,7 @@
 
 //Gamestates
 typedef enum GameScreen { LOGO = 0, GAMESTART, GAMEPLAY } GameScreen;
-int gameActive = 0;
+bool gameActive = false;
 int framesCounter = 0;
 GameScreen currentScreen = LOGO;
 
@@ -60,6 +60,24 @@ Color skye = { 116, 253, 255, 255 };
 
 Vector2 myPlayerPosition{ 0,0 };
 
+
+
+// rectangle variables 
+Rectangle tryRectangle = { 0, 0, 0, 0 };
+Rectangle tryRectangle2 = { 0, 0, 0, 0 };
+
+float rectangleX = windowWidth;
+float rectangleY = 0.f;
+float rectangleHeight = 300.f;
+float rectangleWidth = 200.f;
+
+float rectangle2X = windowWidth;
+float rectangle2Y = 0.f;
+float rectangle2Height = 400.f;
+float rectangle2Width = 200.f;
+
+float SizeBetween = 200;
+
 //Helper function
 void DrawCenteredText(const char* text, int posY, int fontSize, Color color)
 {
@@ -96,6 +114,7 @@ void Clouds() {
 	DrawCircle(rightCloudX, rightCloudY, rightCloudSize, cloudsC);
 	DrawCircle(downCloudX, downCloudY, downCloudSize, cloudsC);
 }
+
 void MovingCloud() {
 	if (rightCloudX < 0 - rightCloudSize) {
 		movingX = movingX + (windowWidth * 1.5);
@@ -111,23 +130,6 @@ void MovingCloud() {
 	}
 }
 
-// rectangle
-
-float rectangleX = windowWidth;
-float rectangleY = 0.f;
-float rectangleHeight = 300.f;
-float rectangleWidth = 200.f;
-
-float rectangle2X = windowWidth;
-float rectangle2Y = 0.f;
-float rectangle2Height = 400.f;
-float rectangle2Width = 200.f;
-
-float SizeBetween = 200;
-
-Rectangle tryRectangle = { 0, 0, 0, 0 };
-Rectangle tryRectangle2 = { 0, 0, 0, 0 };
-
 void rectangleHitbox() {
 	rectangleY = windowHeight - rectangleHeight;
 	rectangleWidth = 200;
@@ -139,6 +141,7 @@ void rectangleHitbox() {
 		scored = false;
 	}
 }
+
 void rectangleHitbox2() {
 	rectangle2Y = 0;
 	rectangle2Width = 200;
@@ -160,18 +163,20 @@ void collisionDetection()
 	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle))
 	{
 		std::cout << "You hit number 1";
+		std::cout << tryRectangle.x;
 		Score = 0;
 		currentScreen = GAMESTART;
-		playerYPosition = windowHalfHeight;
+		playerYPosition = windowHalfHeight-100;
 			return;
 	}
 	myPlayerPosition = { playerXPosition,playerYPosition };
 	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle2))
 	{
 		std::cout << "You hit number 2";
+		std::cout << tryRectangle2.x;
 		Score = 0;
 		currentScreen = GAMESTART;
-		playerYPosition = windowHalfHeight;
+		playerYPosition = windowHalfHeight-100;
 		return;
 	}
 }
@@ -187,11 +192,7 @@ void PlayerController() {
 		Score = 0;
 		playerYPosition = windowHalfHeight;
 		playerXPosition = windowHalfWidth;
-		gameActive = 4;
-		if (gameActive == 4)
-		{
-			currentScreen = GAMESTART;
-		}
+		currentScreen = GAMESTART;
 	}
 	if (IsKeyDown(KEY_SPACE)) {
 		playerYPosition -= playerSpeed * GetFrameTime();
@@ -218,7 +219,7 @@ void drawplayer() {
 	Color playerColor = { 102, 0, 102, 255 };
 
 	//Circle for testing hitbox
-	//DrawCircle(playerXPosition, playerYPosition, playerSize, YELLOW);
+	DrawCircle(myPlayerPosition.x, myPlayerPosition.y, playerSize, YELLOW);
 }
 
 int main()
@@ -234,11 +235,11 @@ int main()
 		case LOGO:
 		{
 			// TODO: Update LOGO screen variables here!
-			gameActive = 2; // set gameActive to 2 when showing logo
+			gameActive = false; // set gameActive to 2 when showing logo
 			framesCounter++;
 
 			// Wait for 3 seconds (360/120 frames per second) before jumping to GAMESTART screen
-			if (framesCounter > 360)
+			if (framesCounter > 120)
 			{
 				currentScreen = GAMESTART;
 			}
@@ -246,7 +247,6 @@ int main()
 		case GAMESTART:
 		{
 			// TODO: Update GAMESTART screen variables here!
-			// Press enter to change to GAMEPLAY screen
 			playerMovementSpeed = 0;
 			playerSpeed = 0;
 			rectangleX = windowWidth;
@@ -256,7 +256,7 @@ int main()
 			{
 
 				currentScreen = GAMEPLAY;
-				gameActive = 1; // set gameActive to 1 when starting the game
+				gameActive = true; // set gameActive to true when game is running
 			}
 		} break;
 		case GAMEPLAY:
@@ -281,7 +281,7 @@ int main()
 		} break;
 		case GAMESTART:
 		{
-			
+			//Draw GAMESTART screen here!
 			drawplayer();
 			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
 			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, BLACK);
@@ -292,18 +292,22 @@ int main()
 
 			DrawPng();
 			
-			// TODO: Draw GAMESTART screen here!
-			//Insert drawings here, set speed to 0
+			
+			
 
 			DrawCenteredText("FLAPPY PLAAAAANE", (float)windowHalfHeight - 100, 50, DARKGREEN);
 			DrawCenteredText("PRESS SPACE/Left Click to Play", (float)windowHalfHeight - 200, 40, DARKGREEN);
 		} break;
 		case GAMEPLAY:
 		{
-			// TODO: Draw GAMEPLAY screen here!
+			//Draw GAMEPLAY screen here!
 			PlayerController();
+			rectangleHitbox();
+			rectangleHitbox2();
+
 			collisionDetection();
 			UpdateGameScore();
+
 			drawplayer();
 
 			DrawFPS(10, 10);
@@ -312,16 +316,13 @@ int main()
 
 			DrawPng();
 			MovingCloud();
-			rectangleHitbox();
-			rectangleHitbox2();
+			
 			DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
 			DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, BLACK);
-			//PLAYER GOES HERE
-		} break;
+			} break;
+
 		default: break;
 		}
-
-		
 		EndDrawing();
 	}
 	UnloadTexture(paperplane);
