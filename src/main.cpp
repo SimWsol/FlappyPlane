@@ -76,7 +76,7 @@ void MovingCloud() {
 		movingX = movingX + (windowWidth * 1.5);
 		rightCloudX = rightCloudX + (windowWidth * 1.5);
 		leftCloudX = leftCloudX + (windowWidth * 1.5);
-		randomY = GetRandomValue(100, 1024);
+		randomY = GetRandomValue(100, windowHeight);
 		cloudsSize = GetRandomValue(50, 100);
 	}
 	else {
@@ -88,12 +88,12 @@ void MovingCloud() {
 
 // rectangle
 
-float rectangleX = 1024.f;
+float rectangleX = windowWidth;
 float rectangleY = 0.f;
 float rectangleHeight = 300.f;
 float rectangleWidth = 200.f;
 
-float rectangle2X = 1024.f;
+float rectangle2X = windowWidth;
 float rectangle2Y = 0.f;
 float rectangle2Height = 400.f;
 float rectangle2Width = 200.f;
@@ -103,12 +103,12 @@ float SizeBetween = 200;
 Rectangle tryRectangle = { 0, 0, 0, 0 };
 Rectangle tryRectangle2 = { 0, 0, 0, 0 };
 void rectangleHitbox() {
-	rectangleY = 1024 - rectangleHeight;
+	rectangleY = windowHeight - rectangleHeight;
 	rectangleWidth = 200;
 	rectangleX -= playerMovementSpeed;
 	tryRectangle = { rectangleX,rectangleY,rectangleWidth,rectangleHeight };
 	if (rectangleX < 0 - rectangleWidth) {
-		rectangleX = 1280;
+		rectangleX = windowWidth;
 		rectangleHeight = GetRandomValue(300, 800);
 	}
 }
@@ -118,9 +118,9 @@ void rectangleHitbox2() {
 	rectangle2X -= playerMovementSpeed;
 
 	tryRectangle2 = { rectangle2X,rectangle2Y,rectangle2Width,rectangle2Height };
-	rectangle2Height = 1024 - rectangleHeight - SizeBetween;
+	rectangle2Height = windowHeight - rectangleHeight - SizeBetween;
 	if (rectangle2X < 0 - rectangle2Width) {
-		rectangle2X = 1280;
+		rectangle2X = windowWidth;
 		SizeBetween = GetRandomValue(200, 250);
 		playerMovementSpeed += 0.1;
 		std::cout << playerMovementSpeed;
