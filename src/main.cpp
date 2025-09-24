@@ -91,7 +91,6 @@ float rectangleY = 0.f;
 float rectangleHeight = 300.f;
 float rectangleWidth = 200.f;
 
-
 float rectangle2X = 1024.f;
 float rectangle2Y = 0.f;
 float rectangle2Height = 400.f;
@@ -102,7 +101,6 @@ float SizeBetween = 200;
 Rectangle tryRectangle = { 0, 0, 0, 0 };
 Rectangle tryRectangle2 = { 0, 0, 0, 0 };
 void rectangleHitbox() {
-
 	rectangleY = 1024 - rectangleHeight;
 	rectangleWidth = 200;
 	rectangleX -= playerMovementSpeed;
@@ -111,12 +109,8 @@ void rectangleHitbox() {
 		rectangleX = 1280;
 		rectangleHeight = GetRandomValue(300, 800);
 	}
-
-
-
 }
 void rectangleHitbox2() {
-
 	rectangle2Y = 0;
 	rectangle2Width = 200;
 	rectangle2X -= playerMovementSpeed;
@@ -128,10 +122,7 @@ void rectangleHitbox2() {
 		SizeBetween = GetRandomValue(80, 150);
 		playerMovementSpeed += 0.1;
 		std::cout << playerMovementSpeed;
-
 	}
-
-
 }
 void DrawPng() {
 	DrawTexture(paperplane, playerXPosition - imageHalfSizeX, playerYPosition - imageHalfSizeY, WHITE);
@@ -143,19 +134,15 @@ void PlayerController() {
 	float playerSpeed = 100.f;
 	if (IsKeyDown(KEY_LEFT_SHIFT)) {
 		playerSpeed = 500.f;
-
 	}
 	if (IsKeyDown(KEY_A)) {
 		playerXPosition -= playerSpeed * GetFrameTime();
-
 	}
 	else if (IsKeyDown(KEY_D)) {
 		playerXPosition += playerSpeed * GetFrameTime();
-
 	}
 	if (IsKeyDown(KEY_W)) {
 		playerYPosition -= playerSpeed * GetFrameTime();
-
 	}
 	else if (IsKeyDown(KEY_S)) {
 		playerYPosition += playerSpeed * GetFrameTime();
@@ -168,9 +155,7 @@ void drawplayer() {
 	Color playerColor = { 102, 0, 102, 255 };
 	// To make the hat scale with the player model and move with playercontroller
 
-
 	//DrawCircle(playerXPosition, playerYPosition, playerSize, YELLOW);
-
 }
 
 int main()
@@ -209,7 +194,6 @@ int main()
 		MovingCloud();
 		rectangleHitbox();
 		rectangleHitbox2();
-
 	}
 	UnloadTexture(paperplane);
 	CloseWindow();
