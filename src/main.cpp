@@ -119,7 +119,7 @@ void rectangleHitbox2() {
 	rectangle2Height = 1024 - rectangleHeight - SizeBetween;
 	if (rectangle2X < 0 - rectangle2Width) {
 		rectangle2X = 1280;
-		SizeBetween = GetRandomValue(80, 150);
+		SizeBetween = GetRandomValue(200, 250);
 		playerMovementSpeed += 0.1;
 		std::cout << playerMovementSpeed;
 	}
