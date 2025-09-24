@@ -8,14 +8,14 @@
 
 // Global Variables
 float windowWidth = 1280;
-float windowHight = 1024;
+float windowHeight = 1024;
 float windowHalfWidth = windowWidth / 2;
-float windowHalfHight = windowHight / 2;
-float windowHight100 = windowHight - 100;
+float windowHalfHeight = windowHeight / 2;
+float windowHeight100 = windowHeight - 100;
 
 // Global player variables
 float playerXPosition = windowHalfWidth;
-float playerYPosition = windowHalfHight;
+float playerYPosition = windowHalfHeight;
 
 // Texture for paperplane
 
@@ -160,7 +160,7 @@ void drawplayer() {
 
 int main()
 {
-	InitWindow(windowWidth, windowHight, "My first window!!");
+	InitWindow(windowWidth, windowHeight, "My first window!!");
 	SetTargetFPS(120);
 
 	paperplane = LoadTexture("src/Resources/Paperplane.png");
