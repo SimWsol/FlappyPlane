@@ -5,18 +5,19 @@
 #include <time.h>
 #include <string>
 #include <random>
-
 // Global Variables
 float windowWidth = 1280;
 float windowHeight = 1024;
 float windowHalfWidth = windowWidth / 2;
 float windowHalfHeight = windowHeight / 2;
-float windowHeight100 = windowHeight - 100;
 
 // Global player variables
 float playerXPosition = windowHalfWidth;
 float playerYPosition = windowHalfHeight;
-
+//Scoring
+int Score = 0;
+int Highscore = 0;
+bool scored;
 // Texture for paperplane
 
 Texture2D paperplane;
@@ -43,8 +44,7 @@ double downCloudX = 0;
 double downCloudY = 0;
 double downCloudSize = 0;
 float playerMovementSpeed = 5.f;
-//Added half speed
-float playerMovementSpeedHalf = playerMovementSpeed / 2;
+
 Color skye = { 116, 253, 255, 255 };
 
 Vector2 myPlayerPosition{ 0,0 };
@@ -110,6 +110,7 @@ void rectangleHitbox() {
 	if (rectangleX < 0 - rectangleWidth) {
 		rectangleX = windowWidth;
 		rectangleHeight = GetRandomValue(300, 800);
+		scored = false;
 	}
 }
 void rectangleHitbox2() {
@@ -134,22 +135,41 @@ void DrawPng() {
 //Changed PlayerControlls
 void PlayerController() {
 	float playerSpeed = 500.f;
+
+	if (playerYPosition < 0 || playerYPosition > windowHeight )
+	{
+		//gameActive = 4; // set gameActive to 4 if the ball goes out of bounds
+		// reset ball position to center
+		Score = 0;
+		playerYPosition = windowHalfHeight;
+		playerXPosition = windowHalfWidth;
+
+	}
 	if (IsKeyDown(KEY_SPACE)) {
 		playerYPosition -= playerSpeed * GetFrameTime();
-		playerMovementSpeed = playerMovementSpeedHalf;
 	}
 	else {
 		playerYPosition += (playerSpeed / 2) * GetFrameTime();
 		GetApplicationDirectory();
-		playerMovementSpeed = playerMovementSpeedHalf * 2;
 	}
+}
+
+void UpdateGameScore()
+{
+	if (!scored && rectangleX < playerXPosition)
+	{
+		Score++;
+		scored = true;
+	}
+
+	if (Score > Highscore) Highscore = Score;
 }
 
 void drawplayer() {
 	float playerSize = 33.f;
 	Color playerColor = { 102, 0, 102, 255 };
-	// To make the hat scale with the player model and move with playercontroller
 
+	//Circle for testing hitbox
 	//DrawCircle(playerXPosition, playerYPosition, playerSize, YELLOW);
 }
 
@@ -170,14 +190,19 @@ int main()
 		{
 			std::cout << "You hit";
 			playerMovementSpeed = 5;
+			Score = 0;
 		}
 		myPlayerPosition = { playerXPosition,playerYPosition };
 		if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle2))
 		{
 			std::cout << "You hit";
 			playerMovementSpeed = 5;
+			Score = 0;
 		}
+		UpdateGameScore();
 		drawplayer();
+		DrawText(TextFormat("Score: %01i", Score), 50, 50, 25, BLACK);
+		DrawText(TextFormat("Highscore: %01i", Highscore), 50, 100, 25, GREEN);
 
 		DrawFPS(10, 10);
 
