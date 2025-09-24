@@ -159,24 +159,20 @@ void collisionDetection()
 	myPlayerPosition = { playerXPosition,playerYPosition };
 	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle))
 	{
-		std::cout << "You hit";
+		std::cout << "You hit number 1";
 		Score = 0;
-		gameActive = 4;
-		if (gameActive == 4)
-		{
-			currentScreen = GAMESTART;
-		}
+		currentScreen = GAMESTART;
+		playerYPosition = windowHalfHeight;
+			return;
 	}
 	myPlayerPosition = { playerXPosition,playerYPosition };
 	if (CheckCollisionCircleRec(myPlayerPosition, 33.f, tryRectangle2))
 	{
-		std::cout << "You hit";
+		std::cout << "You hit number 2";
 		Score = 0;
-		gameActive = 4;
-		if (gameActive == 4)
-		{
-			currentScreen = GAMESTART;
-		}
+		currentScreen = GAMESTART;
+		playerYPosition = windowHalfHeight;
+		return;
 	}
 }
 void DrawPng() {
