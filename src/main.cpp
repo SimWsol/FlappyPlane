@@ -288,9 +288,9 @@ int main()
 
 			DrawFPS(10, 10);
 
-			DrawPng();
-
 			Clouds();
+
+			DrawPng();
 			
 			// TODO: Draw GAMESTART screen here!
 			//Insert drawings here, set speed to 0
@@ -310,9 +310,9 @@ int main()
 
 			DrawFPS(10, 10);
 
-			DrawPng();
-
 			Clouds();
+
+			DrawPng();
 			MovingCloud();
 			rectangleHitbox();
 			rectangleHitbox2();
