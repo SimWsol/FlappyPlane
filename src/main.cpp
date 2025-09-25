@@ -116,13 +116,30 @@ double gameOverTimer = 0.0;
 const float RestartDelay = 0.5f; 
 
 // Textures -----------------------------------------
-Texture2D characterTexture;
 Texture2D cloudTexture;
+Texture2D backgroundTexture;
+//plane textures-----------------------------------------------
+Texture2D characterTexture;
 Texture2D paperplaneTexture;
 Texture2D jetplaneTexture;
-Texture2D backgroundTexture;
+//Hindrance textures-----------------------------------------------
 Texture2D topHindranceTexture;
 Texture2D bottomHindranceTexture;
+
+//Audio files-----------------------------------------------
+#define PlaneJumpSoundsMax 10
+// Sounds for the paper plane
+Sound paperplaneJumpSound;
+Sound paperplaneSounds[PlaneJumpSoundsMax] = { 0 };
+// Sounds for the jet plane
+Sound jetplaneThrustSound;
+Sound jetplaneSounds[PlaneJumpSoundsMax] = { 0 };
+int currentSound;
+
+//Background music
+Music backgroundMusic;
+
+
 
 //moving background variables-----------------------------------------------
 float scrollingBackX = 0.0f;
@@ -406,11 +423,26 @@ void PlayerController() {
 	{
 		// Apply upward force when the space key is pressed
 		playerSpeedY = jumpForce;
+		// Play jump sound depending on the plane type usign switch
+		//plays an array of 10 sound slots of the same sound to avoid cutting off, loops at end of array
+		switch (planeChoice)
+		{
+		case 0: // Paperplane
+			PlaySound(paperplaneSounds[currentSound]);
+			break;
+		case 1: // Jetplane
+			PlaySound(jetplaneSounds[currentSound]);
+			break;
+		}
+		currentSound++;                        
+		if (currentSound >= PlaneJumpSoundsMax) currentSound = 0;
+
 	}
 	else if (IsKeyDown(KEY_SPACE))
 	{
 		// Apply upward force when the space key is pressed
 		playerSpeedY -= jumpSustainForce * GetFrameTime();
+		
 	}
 	// Apply gravity to the player's vertical speed
 	playerSpeedY += gravity * GetFrameTime();
@@ -446,9 +478,27 @@ void UpdateGameScore()
 int main()
 {
 	InitWindow(windowWidth, windowHeight, "My first window!!");
+	InitAudioDevice();
 	SetTargetFPS(120);
 	initHindrances();
 	InitClouds();
+
+	//Load Music
+	// .mp3, .ogg, .wav, or .flac accepted
+	backgroundMusic = LoadMusicStream("src/resources/BackgroundSong.mp3"); 
+	PlayMusicStream(backgroundMusic);
+	// Load sound aliases into the array
+	paperplaneJumpSound = LoadSound("src/resources/sound1.wav");
+	jetplaneThrustSound = LoadSound("src/resources/sound2.wav");
+	
+	// Load an alias of the sound into slots 1-9. These do not own the sound data, but can be played
+	for (int i = 1; i < PlaneJumpSoundsMax; i++)
+	{
+		jetplaneSounds[i] = LoadSoundAlias(jetplaneThrustSound);
+		paperplaneSounds[i] = LoadSoundAlias(paperplaneJumpSound);
+	}
+		currentSound = 0;
+
 
 	//Load textures
 	paperplaneTexture = LoadTexture("src/Resources/Paperplane.png");
@@ -461,6 +511,8 @@ int main()
 
 
 	while (!WindowShouldClose()) {
+		//Background music update
+		UpdateMusicStream(backgroundMusic);
 		//UPDATE LOGIC--------------------------
 		//The brains and meat of the operation!
 		switch (currentScreen)
@@ -505,6 +557,10 @@ int main()
 
 		case GAMEPLAY:
 		{
+			//Make sure background music is playing
+			ResumeMusicStream(backgroundMusic);
+
+			//Pausing on P input
 			if (IsKeyPressed(KEY_P))
 			{
 				currentScreen = PAUSED;
@@ -544,6 +600,9 @@ int main()
 
 		case PAUSED:
 		{
+			// Pause the background music
+			PauseMusicStream(backgroundMusic);
+
 			if (IsKeyPressed(KEY_P))
 			{
 				currentScreen = GAMEPLAY;
@@ -632,6 +691,20 @@ int main()
 	UnloadTexture(cloudTexture);
 	UnloadTexture(topHindranceTexture);
 	UnloadTexture(bottomHindranceTexture);
+
+	// Close audio device and unload sound aliases and background music
+	for (int i = 0; i < PlaneJumpSoundsMax; i++) 
+	{
+		UnloadSoundAlias(paperplaneSounds[i]);
+		UnloadSoundAlias(jetplaneSounds[i]);
+	}
+
+	UnloadSound(paperplaneJumpSound);
+	UnloadSound(jetplaneThrustSound);
+	UnloadMusicStream(backgroundMusic);
+
+	CloseAudioDevice();
+
 
 	CloseWindow();
 
