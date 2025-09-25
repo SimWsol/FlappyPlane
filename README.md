@@ -9,3 +9,7 @@
 - Collision detection with obstacles
 - Simple controls, `Space` to flap the plane
 
+# Contributors
+<a href="https://github.com/SimWsol/MathComp2_Group3/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=SimWsol/MathComp2_Group3" />
+</a>
