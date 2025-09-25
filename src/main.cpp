@@ -6,6 +6,75 @@
 #include <string>
 #include <random>
 
+/*
+README-------------------------------------
+Team roles: 
+Noah: Group lead, basic game mechanics, basic game design,
+Simon: Main programmer, advanced game mechanics, advanced game design,
+Alvin: Help with programming, scoreboards, file handling, Calculations
+Oskar: Lead designer, graphics, 2D art, Audio design
+(Note, any team member can help with any task, but these are the main roles)
+___________________________________________________
+To do list Noah: 23/09
+Add basic object system:
+Add basic spawn and despawn system for hindrance objects
+rectangles that move left across the screen, despawn when off screen
+random height of base, identical height increase (gap) between top and bottom
+top and bottom rectangles are tall enough so player cannot go "above"
+Fixed width of rectangles
+
+Controls:
+Space to increase height of player, gravity based.
+P to pause game
+X to change plane type
+
+
+current Game overview list-----------------------------------------------------------------------
+Gamestart state, Space to start, X to change plane type
+High score display top left screen
+
+Main game:
+Player moves only Y axis
+Player rotates slightly when moving up or down
+Player has multiple ships with different speeds to choose from
+Gravity pulls player down when not pressing space
+
+Objects move only X axis
+Objects spawn on right side of screen and despawn on left side of screen
+objects spawn at random heights but fixed distance between top and bottom and fixed width
+objects spawn are tall enough to leave a gap for the player to pass through
+
+Touching the "ground" or "floor" ends the game
+Touching an object ends the game
+Score increases by 1 for each object that passes the player
+
+Background: exchangable background image 
+Clouds that move slowly across the screen to indicate speed(parallax effect)
+Perhaps ground or floor at the bottom of the screen moves slightly to indicate speed(parallax effect)
+
+Game over screen with score and high score:
+Pause Menu with Pause text
+Space to restart
+Game overview end-------------------------------------------------------------------
+
+TO DO LATER (if time):
+Noah 25/09 Planned:
+Music: (Background music, menu music)
+Sound effects: game over(wumpwump), score increase (Ding), height increase sound (Swosh)
+
+Add features:
+Powerups?(NOT YET Different object types(ADDED system, still just one style) Make theme system.
+Add more menus: Settings menu? (Not yet, add theme picker for different backgrounds or textures) 
+
+Advanced graphics: animated player? animated objects? animated background?
+
+Scoreboards: 
+file handling to save high scores to a file ?
+
+END README------------------------------
+---------------------------------------------
+*/
+
 // Global Variables
 //Gamestates------------------------------------------------------
 typedef enum GameScreen { LOGO = 0, GAMESTART, GAMEPLAY, GAMEOVER, PAUSED } GameScreen;
@@ -126,7 +195,7 @@ Vector2 myPlayerPosition{ 0,0 };
 
 
 
-//rectangle variables-------------------------------------------------
+//Hindrance variables-------------------------------------------------
 struct Hindrance {
 	Rectangle topRect;
 	Rectangle bottomRect;
@@ -164,6 +233,12 @@ void initHindrances(void)
 }
 
 //Helper functions--------------------------------------------------------
+void drawPlayerTest() {
+	//Draws a Circle for testing hitbox (easier to see than the plane rectangle, as the actual hitbox is a circle)
+	Color playerColor = BLACK;
+	DrawCircle(myPlayerPosition.x, myPlayerPosition.y, playerRadius, YELLOW);
+}
+
 void ResetGame()
 {
 	playerXPosition = windowHalfWidth - 300;
