@@ -231,7 +231,7 @@ void initHindrances(void)
 	for (int i = 0; i < maxHindrances; i++)
 	{
 		// Set top rectangle position and size
-		hindrances[i].topRect.width = 200.f;
+		hindrances[i].topRect.width = 250.f;
 		hindrances[i].topRect.height = 400;
 
 		// Position them off-screen to the right initially
@@ -239,7 +239,7 @@ void initHindrances(void)
 		hindrances[i].topRect.y = 0.f;
 
 		// Set bottom rectangle position and size based on top rectangle
-		hindrances[i].bottomRect.width = 200.f;
+		hindrances[i].bottomRect.width = 250.f;
 		hindrances[i].bottomRect.height = 424;
 
 		// Position them off-screen to the right initially
@@ -283,8 +283,8 @@ void updateHindrances(Hindrance& hindrance)
 
 		// Randomize the height of the top rectangle
 		// Minimum gap between top and bottom rectangles (higher number means easier game)
-		float gap = 250.0f; 
-		float randomHeight = GetRandomValue(200, windowHeight - gap - 200);
+		float gap = 200.0f; 
+		float randomHeight = GetRandomValue(150, windowHeight - gap - 200);
 
 		// Set the bottom rectangle's height and position based on the top rectangle
 		hindrance.bottomRect.height = randomHeight;
@@ -402,8 +402,8 @@ void drawGameplayScene() {
 	}
 
 	//Draw the background to fill the screen
-	DrawTexture(backgroundTexture, scrollingBackX, 0, WHITE);
-	DrawTexture(backgroundTexture, scrollingBackX + backgroundTexture.width, 0, WHITE);
+	DrawTexture(backgroundTexture, scrollingBackX,400 , WHITE);
+	DrawTexture(backgroundTexture, scrollingBackX + backgroundTexture.width, 400, WHITE);
 	
 	
 
@@ -524,8 +524,8 @@ int main()
 	logoTexture = LoadTexture("src/Resources/TeamLogo.png");
 	cloudTexture = LoadTexture("src/Resources/Cloud.png");
 	backgroundTexture = LoadTexture("src/Resources/Cityscape.png");
-	topHindranceTexture = LoadTexture("src/Resources/ConstructionTrust.png");
-	bottomHindranceTexture = LoadTexture("src/Resources/BrokenBuilding2.png");
+	topHindranceTexture = LoadTexture("src/Resources/Upperhouse.png");
+	bottomHindranceTexture = LoadTexture("src/Resources/Lowerhouse.png");
 
 
 	while (!WindowShouldClose()) {
