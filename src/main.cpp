@@ -138,6 +138,8 @@ int currentSound;
 
 //Background music
 Music backgroundMusic;
+Music backgroundMusic2;
+Music ChosenBackgroundMusic;
 
 
 
@@ -312,6 +314,18 @@ void HandleCharacterSelection()
 	if (IsKeyPressed(KEY_X))
 	{
 		planeChoice = (planeChoice + 1) % TotalPlanes;
+		if (planeChoice == 0) {
+			// Change background music to match jetplane theme
+			StopMusicStream(ChosenBackgroundMusic);
+			ChosenBackgroundMusic = backgroundMusic;
+			PlayMusicStream(ChosenBackgroundMusic);
+		}
+		else if (planeChoice == 1) {
+			// Change background music back to paperplane theme
+			StopMusicStream(ChosenBackgroundMusic);
+			ChosenBackgroundMusic = backgroundMusic2;
+			PlayMusicStream(ChosenBackgroundMusic);
+		}
 	}
 	// Update the character texture based on the current choice
 	switch (planeChoice)
@@ -485,8 +499,12 @@ int main()
 
 	//Load Music
 	// .mp3, .ogg, .wav, or .flac accepted
-	backgroundMusic = LoadMusicStream("src/resources/BackgroundSong.mp3"); 
+	backgroundMusic = LoadMusicStream("src/resources/BackgroundSong2.mp3");
+	backgroundMusic2 = LoadMusicStream("src/resources/BackgroundSong.mp3");
+	ChosenBackgroundMusic = backgroundMusic;
 	PlayMusicStream(backgroundMusic);
+
+
 	// Load sound aliases into the array
 	paperplaneJumpSound = LoadSound("src/resources/sound1.wav");
 	jetplaneThrustSound = LoadSound("src/resources/sound2.wav");
@@ -512,7 +530,7 @@ int main()
 
 	while (!WindowShouldClose()) {
 		//Background music update
-		UpdateMusicStream(backgroundMusic);
+		UpdateMusicStream(ChosenBackgroundMusic);
 		//UPDATE LOGIC--------------------------
 		//The brains and meat of the operation!
 		switch (currentScreen)
@@ -558,7 +576,7 @@ int main()
 		case GAMEPLAY:
 		{
 			//Make sure background music is playing
-			ResumeMusicStream(backgroundMusic);
+			ResumeMusicStream(ChosenBackgroundMusic);
 
 			//Pausing on P input
 			if (IsKeyPressed(KEY_P))
@@ -601,7 +619,7 @@ int main()
 		case PAUSED:
 		{
 			// Pause the background music
-			PauseMusicStream(backgroundMusic);
+			PauseMusicStream(ChosenBackgroundMusic);
 
 			if (IsKeyPressed(KEY_P))
 			{
@@ -702,6 +720,7 @@ int main()
 	UnloadSound(paperplaneJumpSound);
 	UnloadSound(jetplaneThrustSound);
 	UnloadMusicStream(backgroundMusic);
+	UnloadMusicStream(backgroundMusic2);
 
 	CloseAudioDevice();
 
