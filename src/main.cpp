@@ -506,8 +506,8 @@ int main()
 
 
 	// Load sound aliases into the array
-	paperplaneJumpSound = LoadSound("src/resources/sound1.wav");
-	jetplaneThrustSound = LoadSound("src/resources/sound2.wav");
+	paperplaneJumpSound = LoadSound("src/resources/SwoshSound.wav");
+	jetplaneThrustSound = LoadSound("src/resources/JetPlaneSwosh.wav");
 	
 	// Load an alias of the sound into slots 1-9. These do not own the sound data, but can be played
 	for (int i = 1; i < PlaneJumpSoundsMax; i++)
