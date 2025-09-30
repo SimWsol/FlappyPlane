@@ -282,9 +282,9 @@ void updateHindrances(Hindrance& hindrance)
 		hindrance.bottomRect.x += maxHindrances * hindranceSpacing;
 
 		// Randomize the height of the top rectangle
-		// Minimum gap between top and bottom rectangles (higher number means easier game)
-		float gap = 200.0f; 
-		float randomHeight = GetRandomValue(150, windowHeight - gap - 200);
+		// Minimum gap between top and bottom rectangles (higher number means easier game) 
+		float gap = 110.0f; 
+		float randomHeight = GetRandomValue(250, windowHeight - gap - 200);
 
 		// Set the bottom rectangle's height and position based on the top rectangle
 		hindrance.bottomRect.height = randomHeight;
